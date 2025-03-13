@@ -26,16 +26,16 @@
         
         /* Style de la barre de recherche */
         input[type="text"] {
-            width: 300px; /* Largeur de la barre */
-            height: 40px; /* Hauteur de la barre */
-            border: 1px solid rgba(50, 50, 50, 0.3); /* Contour léger */
-            border-radius: 25px; /* Coins arrondis */
-            background: rgba(255, 255, 255, 0.2); /* Transparence */
+            width: 300px;
+            height: 40px;
+            border: 1px solid rgba(50, 50, 50, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
             color: black;
             text-align: left;
             padding-left: 10px;
-            backdrop-filter: blur(5px); /* Effet de flou */
-            outline: none; /* Supprime l'effet de sélection */
+            backdrop-filter: blur(5px);
+            outline: none;
         }
         
         /* Style du bouton pour changer l'image de fond */
@@ -43,10 +43,10 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(50, 50, 50, 0.2); /* Transparence */
-            width: 20px; /* Taille du bouton */
+            background: rgba(50, 50, 50, 0.2);
+            width: 20px;
             height: 20px;
-            border-radius: 50%; /* Bouton rond */
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -54,59 +54,97 @@
             color: white;
             font-weight: bold;
             text-align: center;
-            backdrop-filter: blur(5px); /* Flou d'arrière-plan */
+            backdrop-filter: blur(5px);
             cursor: pointer;
             border: none;
             transition: background 0.3s ease, transform 0.2s ease;
         }
         
-        /* Effet au survol du bouton */
         #bgPickerLabel:hover {
             background: rgba(50, 50, 50, 0.4);
             transform: scale(1.1);
         }
         
-        /* Masquer l'input file */
         input[type="file"] {
             display: none;
+        }
+        
+        /* Conteneur des liens rapides */
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Bouton des liens rapides */
+        .link-button {
+            background: rgba(50, 50, 50, 0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        
+        .link-button:hover {
+            background: rgba(50, 50, 50, 0.6);
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
-    <!-- Bouton pour changer l'image de fond -->
     <label for="bgPicker" id="bgPickerLabel">+</label>
     <input type="file" id="bgPicker" accept="image/*" onchange="changeBackground(event)">
     
-    <!-- Barre de recherche -->
     <div class="search-container">
         <form action="https://www.duckduckgo.com/" method="get">
            <input type="text" name="q" autofocus>
         </form>
     </div>
     
+    <div class="quick-links" id="quickLinks"></div>
+    
     <script>
-        /* Fonction pour changer l'image de fond avec un effet de transition */
         function changeBackground(event) {
-            const file = event.target.files[0]; // Récupère le fichier sélectionné
+            const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.body.style.transition = 'background-image 1s ease-in-out'; // Active la transition
+                    document.body.style.transition = 'background-image 1s ease-in-out';
                     document.body.style.backgroundImage = `url('${e.target.result}')`;
-                    localStorage.setItem('bgImage', e.target.result); // Sauvegarde en local
+                    localStorage.setItem('bgImage', e.target.result);
                 };
                 reader.readAsDataURL(file);
             }
         }
         
-        /* Chargement de l'image de fond sauvegardée */
         window.onload = function() {
             const savedBg = localStorage.getItem('bgImage');
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
             }
+            loadQuickLinks();
         };
+        
+        function loadQuickLinks() {
+            const links = [
+                { name: 'Google', url: 'https://www.google.com' },
+                { name: 'YouTube', url: 'https://www.youtube.com' },
+                { name: 'GitHub', url: 'https://github.com' }
+            ];
+            const container = document.getElementById('quickLinks');
+            container.innerHTML = '';
+            
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.textContent = link.name;
+                a.classList.add('link-button');
+                a.target = '_blank';
+                container.appendChild(a);
+            });
+        }
     </script>
 </body>
 </html>
-
