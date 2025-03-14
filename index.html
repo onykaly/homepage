@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page d'accueil personnalisée</title>
 
-    <!-- Import de la police Poppins depuis Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* Style du corps de la page */
         body {
             margin: 0;
             padding: 0;
@@ -18,18 +16,37 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: url('logo.png') no-repeat center center/cover;
-            transition: background-image 1s ease-in-out;
-            font-family: 'Poppins', sans-serif; /* Application de la police Poppins */
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background-color: #1d1f21; /* Fond gris foncé pour éviter le blanc pendant la transition */
         }
 
-        /* Conteneur de la barre de recherche */
+        /* Superposition de deux calques pour une transition fluide */
+        .bgOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease-in-out;
+            z-index: -1;
+        }
+
+        #bgOld {
+            opacity: 1;
+        }
+
+        #bgNew {
+            opacity: 0;
+        }
+
         .search-container {
             margin-bottom: 20px;
             position: relative;
         }
 
-        /* Style de la barre de recherche */
         input[type="text"] {
             width: 300px;
             height: 40px;
@@ -41,11 +58,9 @@
             padding-left: 10px;
             backdrop-filter: blur(5px);
             outline: none;
-            font-family: 'Poppins', sans-serif; /* Police pour la barre de recherche */
             font-size: 15px;
         }
 
-        /* Style du bouton pour changer l'image de fond */
         #bgPickerLabel {
             position: absolute;
             top: 10px;
@@ -60,59 +75,65 @@
             font-size: 13px;
             color: lightslategrey;
             font-weight: bold;
-            text-align: center;
             backdrop-filter: blur(6px);
             cursor: pointer;
             border: none;
             transition: background 0.3s ease, transform 0.2s ease;
-            transform-origin: center;
         }
 
-            /* Effet au survol du bouton */
             #bgPickerLabel:hover {
                 background: rgba(50, 50, 50, 0.4);
                 transform: scale(1.1);
             }
 
-
-        /* Masquer l'input file */
         input[type="file"] {
             display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Bouton pour changer l'image de fond -->
-    <label for="bgPicker" id="bgPickerLabel">+</label>
+    <div id="bgOld" class="bgOverlay"></div>
+    <div id="bgNew" class="bgOverlay"></div>
+
+    <label for="bgPicker" id="bgPickerLabel" aria-label="Changer l'image de fond">+</label>
     <input type="file" id="bgPicker" accept="image/*" onchange="changeBackground(event)">
 
-    <!-- Barre de recherche -->
     <div class="search-container">
         <form action="https://www.duckduckgo.com/" method="get">
-            <input type="text" name="q" autofocus >
+            <input type="text" name="q" autofocus aria-label="Recherche">
         </form>
     </div>
 
     <script>
-        /* Fonction pour changer l'image de fond avec un effet de transition */
         function changeBackground(event) {
-            const file = event.target.files[0]; // Récupère le fichier sélectionné
-            if (file) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) { // Limite de 5 Mo
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    document.body.style.transition = 'background-image 1s ease-in-out'; // Active la transition
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
-                    localStorage.setItem('bgImage', e.target.result); // Sauvegarde en local
+                    const bgOld = document.getElementById('bgOld');
+                    const bgNew = document.getElementById('bgNew');
+
+                    bgNew.style.backgroundImage = `url('${e.target.result}')`;
+                    bgNew.style.opacity = 1; // Faire apparaître la nouvelle image
+
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            bgOld.style.backgroundImage = `url('${e.target.result}')`;
+                            bgNew.style.opacity = 0; // Réinitialiser l'opacité pour la transition suivante
+                            localStorage.setItem('bgImage', e.target.result);
+                        }, 1000);
+                    });
                 };
                 reader.readAsDataURL(file);
+            } else {
+                alert('Veuillez sélectionner une image valide de moins de 5 Mo.');
             }
         }
 
-        /* Chargement de l'image de fond sauvegardée */
         window.onload = function () {
             const savedBg = localStorage.getItem('bgImage');
             if (savedBg) {
-                document.body.style.backgroundImage = `url('${savedBg}')`;
+                document.getElementById('bgOld').style.backgroundImage = `url('${savedBg}')`;
             }
         };
     </script>
