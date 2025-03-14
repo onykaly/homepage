@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page d'accueil personnalisée</title>
 
+    <!-- Importation des polices et des icônes -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
+        /* Style global du corps de la page */
         body {
             margin: 0;
             padding: 0;
@@ -19,6 +22,7 @@
             font-family: 'Poppins', sans-serif;
             overflow: hidden;
             background-color: #1d1f21; /* Fond gris foncé pour éviter le blanc pendant la transition */
+            transition: background-color 0.3s ease;
         }
 
         /* Superposition de deux calques pour une transition fluide */
@@ -42,11 +46,15 @@
             opacity: 0;
         }
 
+        /* Conteneur de la barre de recherche */
         .search-container {
             margin-bottom: 20px;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
+        /* Style de la barre de recherche */
         input[type="text"] {
             width: 300px;
             height: 40px;
@@ -59,55 +67,165 @@
             backdrop-filter: blur(5px);
             outline: none;
             font-size: 15px;
+            transition: background 0.1s ease, box-shadow 0.1s ease;
         }
 
+            /* Effet de focus sur la barre de recherche */
+            input[type="text"]:focus {
+                background: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            }
+
+        /* Style du bouton pour changer l'image de fond */
         #bgPickerLabel {
             position: absolute;
             top: 10px;
             right: 10px;
             background: rgba(50, 50, 50, 0.2);
-            width: 22px;
-            height: 22px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 14px;
             color: lightslategrey;
             font-weight: bold;
-            backdrop-filter: blur(6px);
+            backdrop-filter: blur(8px);
             cursor: pointer;
             border: none;
-            transition: background 0.3s ease, transform 0.2s ease;
+            transition: background 0.1s ease, transform 0.1s ease;
+            transform-origin: center;
         }
 
+            /* Effet de survol sur le bouton pour changer l'image de fond */
             #bgPickerLabel:hover {
                 background: rgba(50, 50, 50, 0.4);
                 transform: scale(1.1);
             }
 
+        /* Style du bouton pour réinitialiser l'image de fond */
+        #resetBgLabel {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(50, 50, 50, 0.2);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: lightslategrey;
+            font-weight: bold;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            border: none;
+            transition: background 0.1s ease, transform 0.1s ease;
+            transform-origin: center;
+        }
+
+            /* Effet de survol sur le bouton pour réinitialiser l'image de fond */
+            #resetBgLabel:hover {
+                background: rgba(50, 50, 50, 0.4);
+                transform: scale(1.1);
+            }
+
+        /* Masquer l'input de type file */
         input[type="file"] {
             display: none;
+        }
+
+        /* Classe pour masquer visuellement les éléments */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* Style du message d'erreur */
+        .error-message {
+            color: #ff6f61; /* Utilisation d'un rouge pastel pour une apparence plus douce */
+            font-size: 14px;
+            margin-top: 10px;
+            transition: opacity 1s ease-in-out;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0;
+        }
+
+        /* Animation pour faire apparaître le message d'erreur */
+        .fade-in {
+            animation: fadeIn 1s forwards;
+        }
+
+        /* Animation pour faire disparaître le message d'erreur */
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Calques pour les images de fond -->
     <div id="bgOld" class="bgOverlay"></div>
     <div id="bgNew" class="bgOverlay"></div>
 
-    <label for="bgPicker" id="bgPickerLabel" aria-label="Changer l'image de fond">+</label>
+    <!-- Bouton pour changer l'image de fond -->
+    <label for="bgPicker" id="bgPickerLabel" aria-label="Changer l'image de fond"><i class="fas fa-image"></i></label>
     <input type="file" id="bgPicker" accept="image/*" onchange="changeBackground(event)">
 
+    <!-- Bouton pour réinitialiser l'image de fond -->
+    <button id="resetBgLabel" aria-label="Réinitialiser l'image de fond"><i class="fas fa-undo"></i></button>
+
+    <!-- Conteneur de la barre de recherche -->
     <div class="search-container">
         <form action="https://www.duckduckgo.com/" method="get">
-            <input type="text" name="q" autofocus aria-label="Recherche">
+            <label for="search" class="visually-hidden">Recherche</label>
+            <input type="text" id="search" name="q" autofocus aria-label="Recherche">
         </form>
+        <div id="error-message" class="error-message" role="alert" aria-live="assertive"></div>
     </div>
 
     <script>
+        // Fonction pour changer l'image de fond
         function changeBackground(event) {
             const file = event.target.files[0];
-            if (file && file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) { // Limite de 5 Mo
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const errorMessage = document.getElementById('error-message');
+
+            if (file && validImageTypes.includes(file.type) && file.size <= 5 * 1024 * 1024) { // Limite de 5 Mo
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const bgOld = document.getElementById('bgOld');
@@ -120,22 +238,47 @@
                         setTimeout(() => {
                             bgOld.style.backgroundImage = `url('${e.target.result}')`;
                             bgNew.style.opacity = 0; // Réinitialiser l'opacité pour la transition suivante
-                            localStorage.setItem('bgImage', e.target.result);
+                            requestIdleCallback(() => {
+                                localStorage.setItem('bgImage', e.target.result);
+                            });
                         }, 1000);
                     });
                 };
                 reader.readAsDataURL(file);
+                errorMessage.textContent = ''; // Effacer les messages d'erreur précédents
             } else {
-                alert('Veuillez sélectionner une image valide de moins de 5 Mo.');
+                errorMessage.textContent = ' moins de 5 Mo.';
+                errorMessage.classList.add('fade-in');
+                setTimeout(() => {
+                    errorMessage.classList.add('fade-out');
+                    setTimeout(() => {
+                        errorMessage.textContent = ''; // Effacer le message d'erreur
+                        errorMessage.classList.remove('fade-in');
+                        errorMessage.classList.remove('fade-out');
+                    }, 1000); // Correspond à la durée de la transition CSS
+                }, 5000);
             }
         }
 
+        // Fonction pour réinitialiser l'image de fond
+        function resetBackground() {
+            const bgOld = document.getElementById('bgOld');
+            const bgNew = document.getElementById('bgNew');
+            bgNew.style.backgroundImage = '';
+            bgOld.style.backgroundImage = '';
+            localStorage.removeItem('bgImage');
+        }
+
+        // Charger l'image de fond sauvegardée au chargement de la page
         window.onload = function () {
             const savedBg = localStorage.getItem('bgImage');
             if (savedBg) {
                 document.getElementById('bgOld').style.backgroundImage = `url('${savedBg}')`;
             }
         };
+
+        // Ajouter un événement au bouton de réinitialisation
+        document.getElementById('resetBgLabel').addEventListener('click', resetBackground);
     </script>
 </body>
 </html>
